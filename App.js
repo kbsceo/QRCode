@@ -6,33 +6,24 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Clipboard from 'expo-clipboard';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, useFocusEffect } from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 
 
-
-
-
-
-const HeaderButtonComponent = (props) => (
-  <HeaderButton
-    IconComponent={Ionicons}
-    iconSize={23}
-    color="#FFF"
-    {...props}
-  />
-);
-  
 
 const HomeScreen = () => {
   const [hasPermisson, setHasPermisson] = useState(null);
-  const [scanned, setScanned] = useState(false);
+  const [scanned, setScanned] = useState(false);``
   const [qrCodeArray, setQrCodeArray] = useState([]);
+  const isFocused = useIsFocused();
+
+
 
 
   const handleBarCodeScanned = ({type, data}) => {
     setScanned(true);
-    //setText(text);
     setQrCodeArray([...qrCodeArray, data]);
-    console.log([qrCodeArray]);
+    console.log([setQrCodeArray]);
+    console.log('success');
   }
 
   
@@ -67,8 +58,6 @@ const HomeScreen = () => {
   const save = async () => {
     try{
       await AsyncStorage.setItem("serial", JSON.stringify(qrCodeArray));
-    
-      
     } catch(err) {
       alert(err)
     }
@@ -86,7 +75,9 @@ const HomeScreen = () => {
   };
 
  
-
+  if(!isFocused) {
+    return <View></View>
+  } else {  
   return (
     <View style={styles.container}>
         <View style={styles.barcodebox}>
@@ -95,7 +86,7 @@ const HomeScreen = () => {
           style = {{ height:400, width:400}} />
         </View>
         <ScrollView style={styles.listViewContainer1}>
-          <Text style={styles.maintext}> {JSON.stringify(qrCodeArray).replace(/\"/gi, "").replace(/\]/gi,"").replace(/\[/gi,"").replaceAll("\,","\n")}</Text>
+          <Text style={styles.maintext}> {qrCodeArray.join("\n")}</Text>
         </ScrollView>
         {scanned && <Button title={'scan again?'} onPress={( ) => setScanned(false)} color='tomato'/>}
         <TouchableOpacity style={styles.button} onPress={() => save()}>
@@ -104,8 +95,12 @@ const HomeScreen = () => {
         <TouchableOpacity style={styles.button} onPress={() => remove()}>
           <Text>지우기</Text>
         </TouchableOpacity>
+
+        
       </View>
   );
+  
+  }
 }
 
 const ScannedScreen = () => {
@@ -114,7 +109,7 @@ const ScannedScreen = () => {
 
   const copyToClipboard  = () => {
 
-    Clipboard.setString(JSON.stringify(qrData).replaceAll("\]", "").replaceAll("\"","").replaceAll("\[","").replaceAll("\,","\n"), null, 2);
+    Clipboard.setString(qrData.join("\n"));
   };
   
    useFocusEffect(
@@ -133,18 +128,15 @@ const ScannedScreen = () => {
       
         {qrData && qrData.map((qr,index) => { // map () array 모든 원소에 대해 특정 변형 작업 후 리턴해주는 함수
           return(
-          
             <View style={styles.container1} key={index}>
               <Text>{qr}</Text>
             </View>
           );
         })}
-      
       </ScrollView>
       <TouchableOpacity style={styles.copyButton} onPress={() => copyToClipboard()}>
           <Text>복사</Text>
         </TouchableOpacity>
-      
     </View>
   );
 }
@@ -158,8 +150,7 @@ const load = () => {
 }
 
 export default function App() {
-
-
+  
  const Tab = createBottomTabNavigator();
   return (
     <NavigationContainer>
