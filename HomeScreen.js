@@ -7,45 +7,51 @@ import { Text, View, Button, TouchableOpacity, ScrollView} from 'react-native';
 import { StyleSheet } from 'react-native';
 
 export default function HomeScreen () {
-    const [hasPermisson, setHasPermisson] = useState(null);
-    const [scanned, setScanned] = useState(false);``
+    
+    const [scanned, setScanned] = useState(false);
     const [qrCodeArray, setQrCodeArray] = useState([]);
+    const [hasPermisson, setHasPermisson] = useState(null);
     const isFocused = useIsFocused();
-  
+
+    const load = () => {
+        try { 
+          return AsyncStorage.getItem("serial");
+        } catch (err) {
+          alert(err)
+        }
+      }
+
+    useEffect(() => {
+        load();
+        (async () => {
+          const {status} = await BarCodeScanner.requestPermissionsAsync();
+          setHasPermisson(status === 'granted');
+        })();
+      }, []);
+    
+      if (hasPermisson === null) {
+        return (
+          <View style={styles.container}>
+            <Text>Requesting for camera permisson</Text>
+            <StatusBar style="auto" />
+          </View>
+        )
+        
+      }
+      if(hasPermisson === false) {
+        return (
+          <View style={styles.container}>
+            <Text>No acess to camera</Text>
+            <Button title={'Allow Camera'} onPress={() => askForCameraPermisson()}/>
+          </View>
+        )
+      }
     const handleBarCodeScanned = ({type, data}) => {
       setScanned(true);
       setQrCodeArray([...qrCodeArray, data]);
       console.log([setQrCodeArray]);
       console.log('success');
     }
-   
-    useEffect(() => {
-      App.load();
-      (async () => {
-        const {status} = await BarCodeScanner.requestPermissionsAsync();
-        setHasPermisson(status === 'granted');
-      })();
-    }, []);
-  
-    if (hasPermisson === null) {
-      return (
-        <View style={styles.container}>
-          <Text>Requesting for camera permisson</Text>
-          <StatusBar style="auto" />
-        </View>
-      )
-      
-    }
-    if(hasPermisson === false) {
-      return (
-        <View style={styles.container}>
-          <Text>No acess to camera</Text>
-          <Button title={'Allow Camera'} onPress={() => askForCameraPermisson()}/>
-        </View>
-      )
-    }
-  
-  
     const save = async () => {
       try{
         await AsyncStorage.setItem("serial", JSON.stringify(qrCodeArray));
@@ -64,11 +70,6 @@ export default function HomeScreen () {
       } finally {
       }
     };
-
-   
-    if(!isFocused) {
-      return <View></View>
-    } else {  
     return (
       <View style={styles.container}>
           <View style={styles.barcodebox}>
@@ -86,15 +87,10 @@ export default function HomeScreen () {
           <TouchableOpacity style={styles.button} onPress={() => remove()}>
             <Text>지우기</Text>
           </TouchableOpacity>
-  
-          
         </View>
-    );
-    
+    ); 
     }
-  }
-
-  const styles = StyleSheet.create({
+    const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: '#fff',
@@ -116,8 +112,6 @@ export default function HomeScreen () {
       fontSize: 18,
       height: 44,
     },
-    
-  
     barcodebox: {
       alignItems: 'center',
       justifyContent: 'center',
@@ -165,5 +159,4 @@ export default function HomeScreen () {
       flexDirection : "column",
       marginHorizontal : 50
     }
-  
   });

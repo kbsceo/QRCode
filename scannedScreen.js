@@ -1,40 +1,53 @@
 import * as Clipboard from 'expo-clipboard';
 import { Text, View, TouchableOpacity, ScrollView} from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import React, {useState,useCallback } from 'react'
+import React, {useState,useCallback, useEffect } from 'react'
 import { StyleSheet } from 'react-native';
-import App from './App';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function scannedScreen() {
-
+export default function ScannedScreen() {
     const [qrData, setqrData] = useState([]);
+
+    const load = () => {
+        try { 
+          return AsyncStorage.getItem("serial");
+        } catch (err) {
+          alert(err)
+        }
+      }
+
+    useEffect(() => {
+        load();
+        (async () => {
+          const {status} = await BarCodeScanner.requestPermissionsAsync();
+          setHasPermisson(status === 'granted');
+        })();
+      }, []);
   
     const copyToClipboard  = () => {
   
-    Clipboard.setString(qrData.join("\n"));
+        Clipboard.setString(qrData.join("\n"));
     };
     
-     useFocusEffect(
+    useFocusEffect(
       useCallback(() => {
         (async () => {
-          const loadQrData =  await App.Appload()
+          const loadQrData =  await load()
           setqrData(JSON.parse(loadQrData))
          })();
       })
      )
-        return (
-  
-        <View style={styles.scannedScreenContainer}>
-        
+
+    return (
+         <View style={styles.scannedScreenContainer}>
             <ScrollView style={styles.listViewContainer}>
-        
-            {qrData && qrData.map((qr,index) => { // map () array 모든 원소에 대해 특정 변형 작업 후 리턴해주는 함수
-                return(
-                <View style={styles.container1} key={index}>
-                    <Text>{qr}</Text>
-                </View>
-                );
-            })}
+                {qrData && qrData.map((qr,index) => { // map () array 모든 원소에 대해 특정 변형 작업 후 리턴해주는 함수
+                    return(
+                    <View style={styles.container1} key={index}>
+                        <Text>{qr}</Text>
+                    </View>
+                    );
+                })}
             </ScrollView>
             <TouchableOpacity style={styles.copyButton} onPress={() => copyToClipboard()}>
                 <Text>복사</Text>
@@ -42,9 +55,6 @@ export default function scannedScreen() {
         </View>
         );
     }
-
-    
-
 const styles = StyleSheet.create({
         container: {
           flex: 1,
@@ -53,12 +63,9 @@ const styles = StyleSheet.create({
           justifyContent: 'center',
         },
         container1 : {
-          
           paddingTop: 22
-      
         },
         scannedScreenContainer : {
-      
           flex :1,
           flexDirection : 'column'
         },
@@ -68,7 +75,6 @@ const styles = StyleSheet.create({
           height: 44,
         },
         
-      
         barcodebox: {
           alignItems: 'center',
           justifyContent: 'center',
@@ -84,7 +90,6 @@ const styles = StyleSheet.create({
           margin:20
       
         },
-      
         button : {
           backgroundColor : "#575DD9",
           alignItems : "center",
@@ -95,7 +100,6 @@ const styles = StyleSheet.create({
           marginTop : 32,
           marginHorizontal :32,
           borderRadius : 6
-      
         },
         copyButton : {
           backgroundColor : "#575DD9",
