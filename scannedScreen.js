@@ -25,8 +25,13 @@ export default function ScannedScreen() {
       }, []);
   
     const copyToClipboard  = () => {
-  
+
+      try {
         Clipboard.setString(qrData.join("\n"));
+        alert(qrData.length + '개 복사완료');
+      } catch(err) {
+        alert(err);
+      }
     };
     
     useFocusEffect(
@@ -52,6 +57,7 @@ export default function ScannedScreen() {
             <TouchableOpacity style={styles.copyButton} onPress={() => copyToClipboard()}>
                 <Text>복사</Text>
             </TouchableOpacity>
+            
         </View>
         );
     }

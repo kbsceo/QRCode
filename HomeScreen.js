@@ -12,7 +12,6 @@ export default function HomeScreen () {
     const [qrCodeArray, setQrCodeArray] = useState([]);
     const [hasPermisson, setHasPermisson] = useState(null);
     const isFocused = useIsFocused();
-
     const load = () => {
         try { 
           return AsyncStorage.getItem("serial");
@@ -55,6 +54,7 @@ export default function HomeScreen () {
     const save = async () => {
       try{
         await AsyncStorage.setItem("serial", JSON.stringify(qrCodeArray));
+        alert('스캔한 QR코드 \n' + qrCodeArray.length+'개 성공적으로 저장되었습니다.')
       } catch(err) {
         alert(err)
       }
@@ -64,12 +64,18 @@ export default function HomeScreen () {
       try {
         await AsyncStorage.removeItem("serial");
         setQrCodeArray([]);
+        alert('모든 QR코드가 삭제 되었습니다. 스캔을 다시 해주세요')
       }
       catch(err) {
         alert(err);
       } finally {
       }
     };
+    if(!isFocused) {
+      return <View></View>
+    } else {
+
+    
     return (
       <View style={styles.container}>
           <View style={styles.barcodebox}>
@@ -80,7 +86,7 @@ export default function HomeScreen () {
           <ScrollView style={styles.listViewContainer1}>
             <Text style={styles.maintext}> {qrCodeArray.join("\n")}</Text>
           </ScrollView>
-          {scanned && <Button title={'scan again?'} onPress={( ) => setScanned(false)} color='tomato'/>}
+          {scanned && <Button title={'스캔하기'} onPress={( ) => setScanned(false)} color='tomato'/>}
           <TouchableOpacity style={styles.button} onPress={() => save()}>
             <Text>저장하기</Text>
           </TouchableOpacity>
@@ -88,7 +94,8 @@ export default function HomeScreen () {
             <Text>지우기</Text>
           </TouchableOpacity>
         </View>
-    ); 
+        ); 
+      }
     }
     const styles = StyleSheet.create({
     container: {
