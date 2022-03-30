@@ -5,6 +5,7 @@ import React, {useState,useCallback, useEffect } from 'react'
 import { StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+
 export default function ScannedScreen() {
     const [qrData, setqrData] = useState([]);
 
@@ -33,6 +34,7 @@ export default function ScannedScreen() {
         alert(err);
       }
     };
+
     
     useFocusEffect(
       useCallback(() => {
@@ -48,14 +50,14 @@ export default function ScannedScreen() {
             <ScrollView style={styles.listViewContainer}>
                 {qrData && qrData.map((qr,index) => { // map () array 모든 원소에 대해 특정 변형 작업 후 리턴해주는 함수
                     return(
-                    <View style={styles.container1} key={index}>
-                        <Text>{qr}</Text>
+                    <View style={styles.ScrollViewContainer} key={index}>
+                        <Text style={styles.ScrollViewTextStyle}>{qr}</Text>
                     </View>
                     );
                 })}
             </ScrollView>
             <TouchableOpacity style={styles.copyButton} onPress={() => copyToClipboard()}>
-                <Text>복사</Text>
+                <Text >복사</Text>
             </TouchableOpacity>
             
         </View>
@@ -73,7 +75,8 @@ const styles = StyleSheet.create({
         },
         scannedScreenContainer : {
           flex :1,
-          flexDirection : 'column'
+          flexDirection : 'column',
+        
         },
         item: {
           padding: 10,
@@ -110,11 +113,12 @@ const styles = StyleSheet.create({
         copyButton : {
           backgroundColor : "#575DD9",
           marginTop : 32,
-          height :40,
-          borderRadius : 6,
-          paddingVertical :12,
+          height :50,
+          borderRadius : 1,
+          paddingVertical :10,
           justifyContent : 'center',
-          alignItems :"center"
+          alignItems :"center",
+          
         }, 
         listViewContainer : {
           flex :1, // 남는 공간 내가 다 먹을거임
@@ -125,7 +129,39 @@ const styles = StyleSheet.create({
           flex :1, // 남는 공간 내가 다 먹을거임
           flexDirection : "column",
           marginHorizontal : 50
+        },
+
+        ScrollViewContainer : {
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          marginTop: 12,
+          marginHorizontal: 12,
+          paddingVertical: 25,
+          paddingHorizontal: 14,
+          height: 80,
+          shadowColor: '#f1f2f3',
+          shadowOffset: {
+            width: 0,
+            height: 0,
+          },
+          shadowOpacity: 1,
+          shadowRadius: 18.95,
+          elevation: 1,
+          zIndex: 1,
+          backgroundColor: 'white',
+          borderRadius: 12,
+          borderColor: '#F2F3F4',
+          borderWidth: 1,
+
+        },
+
+        ScrollViewTextStyle : {
+          fontSize : 20
+          
         }
+
+
       
       });
   
